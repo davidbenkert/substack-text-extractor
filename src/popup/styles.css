@@ -59,6 +59,13 @@ h2 {
   margin-bottom: 16px;
 }
 
+.obsidian-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
 button {
   border: 1px solid #c7ba9d;
   background: #fdf9f2;
@@ -78,6 +85,21 @@ button.primary {
 button:disabled {
   opacity: 0.45;
   cursor: not-allowed;
+}
+
+#obsidianVault {
+  min-width: 0;
+  flex: 1 1 auto;
+  border: 1px solid #c7ba9d;
+  background: #fdf9f2;
+  color: inherit;
+  border-radius: 12px;
+  padding: 11px 14px;
+  font: inherit;
+}
+
+#obsidianVault::placeholder {
+  color: #827a6e;
 }
 
 .metrics {

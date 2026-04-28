@@ -13,7 +13,7 @@ Permissions requested:
 |---|---|
 | `activeTab` | Read the current tab's URL and inject the extractor |
 | `scripting` | Inject the extraction script into the active tab |
-| `storage` | Store an ephemeral auto-extract flag so the keyboard shortcut can open the popup and run extraction |
+| `storage` | Store the keyboard shortcut auto-extract flag and remember the Obsidian vault name between sessions |
 
 No network requests are made by this extension.
 
@@ -24,6 +24,7 @@ No network requests are made by this extension.
 - YAML front matter with title, author, publication, publish date, description, canonical URL, cover image, tags, extraction timestamp, word count, and a `paywalled` flag when applicable
 - GFM Markdown: headings, paragraphs, lists, blockquotes, code blocks, images as `![alt](url)` links
 - Copy to clipboard or download as a `.md` file
+- Save directly to Obsidian via the `obsidian://new` URI scheme, with clipboard fallback for long articles
 - Keyboard shortcut: `Alt+Shift+M` on Windows/Linux and `Option+Shift+M` on macOS
 - Word count + confidence score shown in the popup
 - Detects paywalled posts, surfaces a banner in the popup, and prefixes downloads with `preview-`
@@ -56,7 +57,8 @@ Extracted Markdown keeps image links remote instead of downloading files or inli
 1. Open a Substack article in the active tab.
 2. Click the **Substack Markdown Extractor** toolbar icon.
 3. Click **Extract Article**.
-4. Use **Copy Markdown** to copy to the clipboard, or **Download .md** to save a file.
+4. Use **Copy Markdown**, **Download .md**, or **Save to Obsidian** once extraction completes.
+5. Enter your Obsidian vault name once; the popup remembers it for future saves.
 
 Shortcut:
 
@@ -90,6 +92,10 @@ manifest.json   MV3 extension manifest
 ## Privacy Policy
 
 See [PRIVACY.md](./PRIVACY.md) for the full privacy policy, permission rationale, and network behavior. In short: the extension runs locally, makes no outbound network calls, and only emits remote image URLs inside the Markdown it generates.
+
+## Obsidian
+
+The Obsidian integration uses the local `obsidian://new` URI scheme. Shorter notes are sent directly in the URI; longer notes fall back to clipboard mode automatically so the generated URL stays well below platform limits.
 
 ## License
 

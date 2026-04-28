@@ -1,4 +1,5 @@
 import type { ExtractionResult } from '../extract/types';
+import { buildObsidianSavePlan } from './obsidian';
 
 const titleElement = document.querySelector<HTMLHeadingElement>('#title');
 const statusElement = document.querySelector<HTMLParagraphElement>('#status');
@@ -11,8 +12,11 @@ const paywallBannerElement = document.querySelector<HTMLDivElement>('#paywallBan
 const extractButton = document.querySelector<HTMLButtonElement>('#extract');
 const copyButton = document.querySelector<HTMLButtonElement>('#copy');
 const downloadButton = document.querySelector<HTMLButtonElement>('#download');
+const obsidianVaultInput = document.querySelector<HTMLInputElement>('#obsidianVault');
+const saveToObsidianButton = document.querySelector<HTMLButtonElement>('#saveToObsidian');
 
 let latestResult: ExtractionResult | null = null;
+let obsidianVaultSaveTimeout: number | undefined;
 
 const setStatus = (title: string, status: string) => {
   if (titleElement) {
@@ -47,12 +51,18 @@ const setPaywallBanner = (paywalled: boolean) => {
 };
 
 const updateControls = (enabled: boolean) => {
+  const vaultName = obsidianVaultInput?.value.trim() ?? '';
+
   if (copyButton) {
     copyButton.disabled = !enabled;
   }
 
   if (downloadButton) {
     downloadButton.disabled = !enabled;
+  }
+
+  if (saveToObsidianButton) {
+    saveToObsidianButton.disabled = !enabled || vaultName.length === 0;
   }
 };
 
@@ -180,6 +190,53 @@ const downloadMarkdown = () => {
   setStatus(latestResult.payload.metadata.title, `Saved ${latestResult.payload.filename}.`);
 };
 
+const saveToObsidian = async () => {
+  if (latestResult?.status !== 'success') {
+    return;
+  }
+
+  const vault = obsidianVaultInput?.value.trim() ?? '';
+  if (!vault) {
+    return;
+  }
+
+  const noteName = latestResult.payload.filename.replace(/\.md$/u, '');
+  const markdown = latestResult.payload.markdown;
+  const savePlan = buildObsidianSavePlan({ vault, noteName, markdown });
+
+  if (savePlan.usesClipboard) {
+    await navigator.clipboard.writeText(markdown);
+  }
+
+  // Use active: true so the browser's custom-protocol confirmation dialog
+  // ("Open Obsidian?") is actually shown to the user. With active: false the
+  // dialog is suppressed in Chrome/Edge and the request silently fails.
+  await chrome.tabs.create({ url: savePlan.uri, active: true });
+
+  if (savePlan.usesClipboard) {
+    setStatus(
+      noteName,
+      `Markdown copied to clipboard. Approve "Open Obsidian" in the new tab; vault "${vault}" must exist and be open.`
+    );
+    return;
+  }
+
+  setStatus(
+    noteName,
+    `Approve "Open Obsidian" in the new tab. Vault "${vault}" must exist and be open in Obsidian.`
+  );
+};
+
+const initializeObsidianVault = async () => {
+  if (!obsidianVaultInput) {
+    return;
+  }
+
+  const { obsidianVault } = await chrome.storage.local.get('obsidianVault');
+  obsidianVaultInput.value = typeof obsidianVault === 'string' ? obsidianVault : '';
+  updateControls(latestResult?.status === 'success');
+};
+
 const handleExtraction = async () => {
   setStatus('Extracting...', 'Running extraction against the current tab.');
   updateControls(false);
@@ -213,6 +270,18 @@ const maybeAutoExtract = async () => {
   await handleExtraction();
 };
 
+obsidianVaultInput?.addEventListener('input', () => {
+  updateControls(latestResult?.status === 'success');
+
+  if (obsidianVaultSaveTimeout) {
+    window.clearTimeout(obsidianVaultSaveTimeout);
+  }
+
+  obsidianVaultSaveTimeout = window.setTimeout(() => {
+    void chrome.storage.local.set({ obsidianVault: obsidianVaultInput.value.trim() });
+  }, 400);
+});
+
 extractButton?.addEventListener('click', async () => {
   await handleExtraction();
 });
@@ -225,4 +294,12 @@ downloadButton?.addEventListener('click', () => {
   downloadMarkdown();
 });
 
+saveToObsidianButton?.addEventListener('click', () => {
+  void saveToObsidian().catch((error) => {
+    const message = error instanceof Error ? error.message : 'Unknown Obsidian save error.';
+    setStatus('Obsidian save failed', message);
+  });
+});
+
+void initializeObsidianVault();
 void maybeAutoExtract();
