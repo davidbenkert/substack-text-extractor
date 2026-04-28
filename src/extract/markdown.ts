@@ -15,7 +15,34 @@ const turndown = new TurndownService({
   hr: '---'
 });
 
+// Image policy: keep remote image URLs instead of downloading or inlining them.
+// For Substack CDN assets, strip query parameters so saved markdown stays stable
+// and avoids carrying tracking or resize hints that are not needed in the note.
+export const cleanImageUrl = (src: string) => {
+  try {
+    const url = new URL(src);
+    if (url.hostname.endsWith('substackcdn.com')) {
+      return `${url.origin}${url.pathname}`;
+    }
+  } catch {
+    return src;
+  }
+
+  return src;
+};
+
 turndown.use(gfm);
+
+turndown.addRule('images', {
+  filter: ['img'],
+  replacement(_content, node) {
+    const image = node as HTMLImageElement;
+    const src = image.src ? cleanImageUrl(image.src) : '';
+    const alt = image.alt?.trim() ?? '';
+
+    return src ? `![${alt}](${src})` : '';
+  }
+});
 
 turndown.addRule('figureImages', {
   filter: ['figure'],
@@ -27,7 +54,7 @@ turndown.addRule('figureImages', {
 
     const alt = image.alt?.trim() ?? '';
     const caption = (node as HTMLElement).querySelector('figcaption')?.textContent?.trim();
-    const imageMarkdown = `![${alt}](${image.src})`;
+    const imageMarkdown = `![${alt}](${cleanImageUrl(image.src)})`;
 
     return caption ? `${imageMarkdown}\n\n_${caption}_\n\n` : `${imageMarkdown}\n\n`;
   }

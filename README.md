@@ -30,6 +30,10 @@ No network requests are made by this extension.
 - Image files are referenced by their original URL — they are not downloaded.
 - Extraction quality may vary on heavily JavaScript-rendered pages if content is injected after the initial page load.
 
+## Images
+
+Extracted Markdown keeps image links remote instead of downloading files or inlining base64 data. For Substack CDN images, the extractor strips query parameters from `substackcdn.com` URLs so saved notes avoid tracking and resize hints while remaining hot-linked to the original asset.
+
 ## Installation (developer / unpacked)
 
 1. Clone or download this repository.

@@ -45,6 +45,24 @@ describe('markdown helpers', () => {
     expect(frontMatter).toContain('word_count: 321');
   });
 
+  it('strips query params from substack cdn image urls', () => {
+    const markdown = htmlToMarkdown(
+      '<figure><img src="https://substackcdn.com/image/fetch/f_auto,q_auto:good,fl_progressive:steep/img.png?utm_source=substack&w=848" alt="Cover" /><figcaption>Caption</figcaption></figure>'
+    );
+
+    expect(markdown).toContain('![Cover](https://substackcdn.com/image/fetch/f_auto,q_auto:good,fl_progressive:steep/img.png)');
+    expect(markdown).not.toContain('?utm_source=substack');
+    expect(markdown).toContain('_Caption_');
+  });
+
+  it('keeps non-substack image urls unchanged', () => {
+    const markdown = htmlToMarkdown(
+      '<p><img src="https://images.example.com/photo.png?fit=cover" alt="Photo" /></p>'
+    );
+
+    expect(markdown).toContain('![Photo](https://images.example.com/photo.png?fit=cover)');
+  });
+
   it('converts semantic html to markdown', () => {
     const markdown = htmlToMarkdown('<h2>Section</h2><p>Hello <strong>world</strong>.</p>');
 

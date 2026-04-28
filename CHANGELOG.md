@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Formalized image handling policy: keep remote image URLs, strip query params from `substackcdn.com` assets, and document hot-linked image behavior (#9)
 - Expanded YAML front matter: `description`, `tags`, `extracted_at`, `word_count`, and conditional `paywalled` flag (#8)
 - Paywall-aware extraction with popup banner, confidence reduction, and `preview-` filename prefix (#7)
 
