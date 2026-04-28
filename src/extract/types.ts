@@ -7,6 +7,11 @@ export interface ArticleMetadata {
   coverImage?: string;
 }
 
+export interface PaywallStatus {
+  paywalled: boolean;
+  reason?: string;
+}
+
 export interface ExtractedMarkdown {
   markdown: string;
   preview: string;
@@ -15,6 +20,8 @@ export interface ExtractedMarkdown {
   confidence: number;
   warnings: string[];
   metadata: ArticleMetadata;
+  paywalled: boolean;
+  paywallReason?: string;
 }
 
 export interface ExtractionFailure {
@@ -34,4 +41,5 @@ export interface ExtractionAdapter {
   isMatch(document: Document, location: Location): boolean;
   collectMetadata(document: Document, location: Location): ArticleMetadata;
   cleanupDocument(document: Document, baseUrl: string): void;
+  detectPaywall(document: Document, textContent: string): PaywallStatus;
 }

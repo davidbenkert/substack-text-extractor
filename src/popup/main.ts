@@ -6,6 +6,7 @@ const wordCountElement = document.querySelector<HTMLElement>('#wordCount');
 const confidenceElement = document.querySelector<HTMLElement>('#confidence');
 const previewElement = document.querySelector<HTMLElement>('#preview');
 const warningsElement = document.querySelector<HTMLUListElement>('#warnings');
+const paywallBannerElement = document.querySelector<HTMLDivElement>('#paywallBanner');
 
 const extractButton = document.querySelector<HTMLButtonElement>('#extract');
 const copyButton = document.querySelector<HTMLButtonElement>('#copy');
@@ -35,6 +36,14 @@ const setWarnings = (warnings: string[]) => {
       return item;
     })
   );
+};
+
+const setPaywallBanner = (paywalled: boolean) => {
+  if (!paywallBannerElement) {
+    return;
+  }
+
+  paywallBannerElement.hidden = !paywalled;
 };
 
 const updateControls = (enabled: boolean) => {
@@ -112,6 +121,7 @@ const renderResult = (result: ExtractionResult) => {
 
   if (result.status === 'error') {
     setStatus('Extraction blocked', result.details ?? result.reason);
+    setPaywallBanner(false);
     if (wordCountElement) {
       wordCountElement.textContent = '0';
     }
@@ -128,6 +138,7 @@ const renderResult = (result: ExtractionResult) => {
 
   const { payload } = result;
   setStatus(payload.metadata.title, `${payload.metadata.publication ?? 'Substack'} article extracted.`);
+  setPaywallBanner(payload.paywalled);
 
   if (wordCountElement) {
     wordCountElement.textContent = payload.wordCount.toLocaleString();

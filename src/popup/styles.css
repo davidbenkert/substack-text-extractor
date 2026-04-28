@@ -41,6 +41,17 @@ h2 {
   color: #4b4d49;
 }
 
+.paywall-banner {
+  margin: 0 0 16px;
+  padding: 10px 12px;
+  border-left: 4px solid #c47a00;
+  border-radius: 10px;
+  background: #fff0c2;
+  color: #6f3d00;
+  font-size: 13px;
+  font-weight: 600;
+}
+
 .actions {
   display: grid;
   grid-template-columns: 1fr;

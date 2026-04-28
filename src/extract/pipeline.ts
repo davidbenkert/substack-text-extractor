@@ -115,6 +115,12 @@ const genericAdapter: ExtractionAdapter = {
         // Ignore malformed URLs and leave them untouched.
       }
     });
+  },
+
+  detectPaywall() {
+    return {
+      paywalled: false
+    };
   }
 };
 
@@ -133,11 +139,11 @@ const getPreview = (markdown: string) => markdown
   .trim()
   .slice(0, 320);
 
-const detectWarnings = (document: Document, textContent: string) => {
+const detectWarnings = (textContent: string, paywalled: boolean) => {
   const warnings: string[] = [];
 
-  if (document.querySelector('[class*="paywall"], [class*="subscriber"], [class*="login"]')) {
-    warnings.push('The article appears to include subscriber-only or gated sections.');
+  if (paywalled) {
+    warnings.push('The extracted markdown is only a preview because this Substack post appears to be subscriber-only.');
   }
 
   if (textContent.length < 1200) {
@@ -147,7 +153,7 @@ const detectWarnings = (document: Document, textContent: string) => {
   return warnings;
 };
 
-const calculateConfidence = (title: string, textContent: string, warnings: string[]) => {
+const calculateConfidence = (title: string, textContent: string, warnings: string[], paywalled: boolean) => {
   let score = 0.35;
 
   if (title.trim()) {
@@ -156,6 +162,10 @@ const calculateConfidence = (title: string, textContent: string, warnings: strin
 
   score += Math.min(textContent.length / 4000, 0.35);
   score -= warnings.length * 0.12;
+
+  if (paywalled) {
+    score -= 0.2;
+  }
 
   return Math.max(0, Math.min(1, Number(score.toFixed(2))));
 };
@@ -187,15 +197,19 @@ export const extractFromCurrentDocument = (): ExtractionResult => {
     };
   }
 
-  const warnings = detectWarnings(document, article.textContent);
+  const wordCount = countWords(article.textContent);
+  const paywallStatus = adapter.detectPaywall(document, article.textContent);
+  const warnings = detectWarnings(article.textContent, paywallStatus.paywalled);
 
   if (adapter === genericAdapter) {
     warnings.push('This page did not match known Substack markers, so the markdown should be reviewed before use.');
   }
 
-  const confidence = calculateConfidence(metadata.title, article.textContent, warnings);
+  const confidence = calculateConfidence(metadata.title, article.textContent, warnings, paywallStatus.paywalled);
   const bodyMarkdown = htmlToMarkdown(article.content);
-  const markdown = buildMarkdownDocument(metadata, bodyMarkdown);
+  const markdown = buildMarkdownDocument(metadata, bodyMarkdown, {
+    paywalled: paywallStatus.paywalled
+  });
 
   if (confidence < 0.45) {
     warnings.push('Extraction confidence is low, so review the markdown before relying on it.');
@@ -206,11 +220,13 @@ export const extractFromCurrentDocument = (): ExtractionResult => {
     payload: {
       markdown,
       preview: getPreview(markdown),
-      filename: `${slugify(metadata.title)}.md`,
-      wordCount: countWords(article.textContent),
+      filename: `${paywallStatus.paywalled ? 'preview-' : ''}${slugify(metadata.title)}.md`,
+      wordCount,
       confidence,
       warnings,
-      metadata
+      metadata,
+      paywalled: paywallStatus.paywalled,
+      paywallReason: paywallStatus.reason
     }
   };
 };

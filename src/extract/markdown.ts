@@ -3,6 +3,10 @@ import { gfm } from 'turndown-plugin-gfm';
 
 import type { ArticleMetadata } from './types';
 
+interface MarkdownDocumentOptions {
+  paywalled?: boolean;
+}
+
 const turndown = new TurndownService({
   codeBlockStyle: 'fenced',
   headingStyle: 'atx',
@@ -29,7 +33,7 @@ turndown.addRule('figureImages', {
 
 const escapeYaml = (value: string) => value.replace(/"/g, '\\"');
 
-export const buildFrontMatter = (metadata: ArticleMetadata) => {
+export const buildFrontMatter = (metadata: ArticleMetadata, options: MarkdownDocumentOptions = {}) => {
   const rows = [
     `title: "${escapeYaml(metadata.title)}"`,
     `source: "${metadata.canonicalUrl}"`
@@ -51,12 +55,20 @@ export const buildFrontMatter = (metadata: ArticleMetadata) => {
     rows.push(`cover_image: "${metadata.coverImage}"`);
   }
 
+  if (options.paywalled) {
+    rows.push('paywalled: true');
+  }
+
   return `---\n${rows.join('\n')}\n---`;
 };
 
 export const htmlToMarkdown = (html: string) => turndown.turndown(html).trim();
 
-export const buildMarkdownDocument = (metadata: ArticleMetadata, bodyMarkdown: string) => {
-  const frontMatter = buildFrontMatter(metadata);
+export const buildMarkdownDocument = (
+  metadata: ArticleMetadata,
+  bodyMarkdown: string,
+  options: MarkdownDocumentOptions = {}
+) => {
+  const frontMatter = buildFrontMatter(metadata, options);
   return `${frontMatter}\n\n# ${metadata.title}\n\n${bodyMarkdown.trim()}\n`;
 };

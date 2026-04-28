@@ -1,4 +1,4 @@
-import type { ArticleMetadata, ExtractionAdapter } from '../types';
+import type { ArticleMetadata, ExtractionAdapter, PaywallStatus } from '../types';
 
 const ARTICLE_HINT_SELECTORS = [
   'article',
@@ -32,6 +32,23 @@ const NOISE_SELECTORS = [
   'button'
 ];
 
+const PAYWALL_SELECTORS = [
+  '.paywall',
+  '.paywall-cta',
+  '[data-component-name*="paywall" i]'
+];
+
+const SUBSCRIBE_HINT_SELECTORS = [
+  '[class*="subscribe" i]',
+  '[class*="subscriber" i]',
+  '[data-testid*="subscribe" i]'
+];
+
+const SUBSCRIBE_BUTTON_PATTERNS = [
+  /subscribe to read/i,
+  /subscribe to continue/i
+];
+
 const queryMeta = (document: Document, selectors: string[]) => {
   for (const selector of selectors) {
     const element = document.querySelector<HTMLMetaElement>(selector);
@@ -54,6 +71,8 @@ const queryText = (document: Document, selectors: string[]) => {
 
   return undefined;
 };
+
+const countWords = (value: string) => value.trim().split(/\s+/).filter(Boolean).length;
 
 const isSubstackHost = (hostname: string) => hostname === 'substack.com' || hostname.endsWith('.substack.com');
 
@@ -151,5 +170,45 @@ export const substackAdapter: ExtractionAdapter = {
         // ignore malformed URLs
       }
     });
+  },
+
+  detectPaywall(document, textContent): PaywallStatus {
+    if (document.querySelector(PAYWALL_SELECTORS.join(', '))) {
+      return {
+        paywalled: true,
+        reason: 'paywall-node'
+      };
+    }
+
+    const subscribeButton = Array.from(document.querySelectorAll<HTMLButtonElement>('button')).find((button) => {
+      const text = button.textContent?.trim() ?? '';
+      return SUBSCRIBE_BUTTON_PATTERNS.some((pattern) => pattern.test(text));
+    });
+
+    if (subscribeButton) {
+      return {
+        paywalled: true,
+        reason: 'subscribe-cta'
+      };
+    }
+
+    const description = queryMeta(document, [
+      'meta[property="og:description"]',
+      'meta[name="description"]'
+    ]);
+    const descriptionWordCount = description ? countWords(description) : 0;
+    const bodyWordCount = countWords(textContent);
+    const hasSubscribeHint = document.querySelector(SUBSCRIBE_HINT_SELECTORS.join(', ')) !== null;
+
+    if (hasSubscribeHint && descriptionWordCount > 0 && bodyWordCount < Math.max(80, descriptionWordCount * 3)) {
+      return {
+        paywalled: true,
+        reason: 'truncated-preview'
+      };
+    }
+
+    return {
+      paywalled: false
+    };
   }
 };
