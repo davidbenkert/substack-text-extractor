@@ -180,7 +180,7 @@ const downloadMarkdown = () => {
   setStatus(latestResult.payload.metadata.title, `Saved ${latestResult.payload.filename}.`);
 };
 
-extractButton?.addEventListener('click', async () => {
+const handleExtraction = async () => {
   setStatus('Extracting...', 'Running extraction against the current tab.');
   updateControls(false);
 
@@ -195,6 +195,26 @@ extractButton?.addEventListener('click', async () => {
       details: message
     });
   }
+};
+
+const maybeAutoExtract = async () => {
+  const sessionStorage = chrome.storage.session;
+
+  if (!sessionStorage) {
+    return;
+  }
+
+  const { autoExtract } = await sessionStorage.get('autoExtract');
+  if (!autoExtract) {
+    return;
+  }
+
+  await sessionStorage.remove('autoExtract');
+  await handleExtraction();
+};
+
+extractButton?.addEventListener('click', async () => {
+  await handleExtraction();
 });
 
 copyButton?.addEventListener('click', () => {
@@ -204,3 +224,5 @@ copyButton?.addEventListener('click', () => {
 downloadButton?.addEventListener('click', () => {
   downloadMarkdown();
 });
+
+void maybeAutoExtract();

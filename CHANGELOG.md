@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added a keyboard shortcut (`Alt+Shift+M` / `Option+Shift+M`) backed by a service worker and session storage flag to open the popup and auto-run extraction (#11)
 - Added a top-level privacy policy, popup privacy link, and README privacy references to document permissions and network behavior (#10)
 - Formalized image handling policy: keep remote image URLs, strip query params from `substackcdn.com` assets, and document hot-linked image behavior (#9)
 - Expanded YAML front matter: `description`, `tags`, `extracted_at`, `word_count`, and conditional `paywalled` flag (#8)

@@ -23,7 +23,8 @@ await mkdir(outdir, { recursive: true });
 
 await Promise.all([
   bundle('src/popup/main.ts', 'popup.js'),
-  bundle('src/extract/runExtraction.ts', 'extract.js')
+  bundle('src/extract/runExtraction.ts', 'extract.js'),
+  bundle('src/background/service-worker.ts', 'service-worker.js', 'esm')
 ]);
 
 const copies = [

@@ -13,6 +13,7 @@ Permissions requested:
 |---|---|
 | `activeTab` | Read the current tab's URL and inject the extractor |
 | `scripting` | Inject the extraction script into the active tab |
+| `storage` | Store an ephemeral auto-extract flag so the keyboard shortcut can open the popup and run extraction |
 
 No network requests are made by this extension.
 
@@ -23,6 +24,7 @@ No network requests are made by this extension.
 - YAML front matter with title, author, publication, publish date, description, canonical URL, cover image, tags, extraction timestamp, word count, and a `paywalled` flag when applicable
 - GFM Markdown: headings, paragraphs, lists, blockquotes, code blocks, images as `![alt](url)` links
 - Copy to clipboard or download as a `.md` file
+- Keyboard shortcut: `Alt+Shift+M` on Windows/Linux and `Option+Shift+M` on macOS
 - Word count + confidence score shown in the popup
 - Detects paywalled posts, surfaces a banner in the popup, and prefixes downloads with `preview-`
 
@@ -55,6 +57,12 @@ Extracted Markdown keeps image links remote instead of downloading files or inli
 2. Click the **Substack Markdown Extractor** toolbar icon.
 3. Click **Extract Article**.
 4. Use **Copy Markdown** to copy to the clipboard, or **Download .md** to save a file.
+
+Shortcut:
+
+- Press `Alt+Shift+M` on Windows/Linux or `Option+Shift+M` on macOS to open the popup and start extraction immediately.
+- `Ctrl+Shift+M` is intentionally avoided because it is reserved by Chrome and Edge for the profile switcher.
+- You can reassign the shortcut in `chrome://extensions/shortcuts` or `edge://extensions/shortcuts`.
 
 ## Development
 

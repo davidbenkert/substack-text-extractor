@@ -5,8 +5,22 @@
   "description": "Extract the current Substack article into Markdown, entirely in your browser.",
   "permissions": [
     "activeTab",
-    "scripting"
+    "scripting",
+    "storage"
   ],
+  "background": {
+    "service_worker": "service-worker.js",
+    "type": "module"
+  },
+  "commands": {
+    "extract-article": {
+      "suggested_key": {
+        "default": "Alt+Shift+M",
+        "mac": "Alt+Shift+M"
+      },
+      "description": "Extract current Substack article to Markdown"
+    }
+  },
   "icons": {
     "16": "icons/icon16.png",
     "32": "icons/icon32.png",

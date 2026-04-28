@@ -16,6 +16,7 @@ The permissions below must stay in sync with [manifest.json](manifest.json).
 | --- | --- |
 | `activeTab` | Read the currently active page after you click the extension action and run an extraction. |
 | `scripting` | Inject the extraction script into the current tab so the article can be converted to Markdown locally. |
+| `storage` | Store a temporary in-browser flag so the keyboard shortcut can open the popup and trigger extraction automatically. |
 
 ## Network Calls
 
