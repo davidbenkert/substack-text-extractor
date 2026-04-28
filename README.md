@@ -1,5 +1,7 @@
 # Substack Markdown Extractor
 
+[![Privacy Policy](https://img.shields.io/badge/privacy-policy-1f1d1a?style=flat-square)](./PRIVACY.md)
+
 A Chrome / Edge extension that extracts the currently open Substack article and converts it to clean Markdown with YAML front matter — entirely in your browser.
 
 ## Privacy
@@ -76,6 +78,10 @@ test/           Vitest unit tests
 build.mjs       esbuild bundler script
 manifest.json   MV3 extension manifest
 ```
+
+## Privacy Policy
+
+See [PRIVACY.md](./PRIVACY.md) for the full privacy policy, permission rationale, and network behavior. In short: the extension runs locally, makes no outbound network calls, and only emits remote image URLs inside the Markdown it generates.
 
 ## License
 

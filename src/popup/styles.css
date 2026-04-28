@@ -123,3 +123,13 @@ dd {
   padding-left: 18px;
   color: #8f3600;
 }
+
+.footer-link {
+  margin: 16px 0 0;
+  font-size: 12px;
+  text-align: right;
+}
+
+.footer-link a {
+  color: #7a4323;
+}
