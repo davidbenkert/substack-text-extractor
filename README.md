@@ -18,11 +18,11 @@ No network requests are made by this extension.
 
 - Works on `*.substack.com` and custom-domain Substack newsletters
 - Falls back to generic article extraction (via Readability) on non-Substack pages
-- YAML front matter with title, author, publication, publish date, canonical URL, and cover image
+- YAML front matter with title, author, publication, publish date, description, canonical URL, cover image, tags, extraction timestamp, word count, and a `paywalled` flag when applicable
 - GFM Markdown: headings, paragraphs, lists, blockquotes, code blocks, images as `![alt](url)` links
 - Copy to clipboard or download as a `.md` file
 - Word count + confidence score shown in the popup
-- Warns when content appears to be paywalled or truncated
+- Detects paywalled posts, surfaces a banner in the popup, and prefixes downloads with `preview-`
 
 ## Limitations
 

@@ -74,6 +74,10 @@ const genericAdapter: ExtractionAdapter = {
         'meta[property="article:published_time"]'
       ]),
       canonicalUrl: document.querySelector<HTMLLinkElement>('link[rel="canonical"]')?.href ?? location.href,
+      description: queryMeta(document, [
+        'meta[property="og:description"]',
+        'meta[name="description"]'
+      ]),
       coverImage: queryMeta(document, [
         'meta[property="og:image"]',
         'meta[name="twitter:image"]'
@@ -208,7 +212,9 @@ export const extractFromCurrentDocument = (): ExtractionResult => {
   const confidence = calculateConfidence(metadata.title, article.textContent, warnings, paywallStatus.paywalled);
   const bodyMarkdown = htmlToMarkdown(article.content);
   const markdown = buildMarkdownDocument(metadata, bodyMarkdown, {
-    paywalled: paywallStatus.paywalled
+    paywalled: paywallStatus.paywalled,
+    wordCount,
+    extractedAt: new Date().toISOString()
   });
 
   if (confidence < 0.45) {

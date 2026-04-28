@@ -74,6 +74,15 @@ const queryText = (document: Document, selectors: string[]) => {
 
 const countWords = (value: string) => value.trim().split(/\s+/).filter(Boolean).length;
 
+const normalizeDescription = (value: string | undefined) => {
+  if (!value) {
+    return undefined;
+  }
+
+  const normalized = value.replace(/\s+/g, ' ').trim();
+  return normalized ? normalized.slice(0, 300) : undefined;
+};
+
 const isSubstackHost = (hostname: string) => hostname === 'substack.com' || hostname.endsWith('.substack.com');
 
 const urlLooksLikeSubstack = (value: string | undefined) => {
@@ -127,6 +136,10 @@ export const substackAdapter: ExtractionAdapter = {
     ]);
 
     const canonicalUrl = document.querySelector<HTMLLinkElement>('link[rel="canonical"]')?.href ?? location.href;
+    const description = normalizeDescription(queryMeta(document, [
+      'meta[property="og:description"]',
+      'meta[name="description"]'
+    ]));
     const coverImage = queryMeta(document, [
       'meta[property="og:image"]',
       'meta[name="twitter:image"]'
@@ -138,6 +151,7 @@ export const substackAdapter: ExtractionAdapter = {
       publication,
       publishedAt,
       canonicalUrl,
+      description,
       coverImage
     };
   },

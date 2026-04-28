@@ -29,12 +29,20 @@ describe('markdown helpers', () => {
       publication: 'The Example Publication',
       publishedAt: '2026-04-28T12:00:00.000Z',
       canonicalUrl: 'https://example.substack.com/p/test-article',
-      coverImage: 'https://example.substack.com/image.png'
+      coverImage: 'https://example.substack.com/image.png',
+      description: 'First line\nSecond line'
+    }, {
+      extractedAt: '2026-04-28T13:00:00.000Z',
+      wordCount: 321
     });
 
     expect(frontMatter).toContain('title: "A test article"');
     expect(frontMatter).toContain('author: "Jane Writer"');
+    expect(frontMatter).toContain('description: "First line Second line"');
     expect(frontMatter).toContain('cover_image: "https://example.substack.com/image.png"');
+    expect(frontMatter).toContain('tags: [substack, clipped]');
+    expect(frontMatter).toContain('extracted_at: "2026-04-28T13:00:00.000Z"');
+    expect(frontMatter).toContain('word_count: 321');
   });
 
   it('converts semantic html to markdown', () => {
@@ -52,18 +60,41 @@ describe('markdown helpers', () => {
     const markdown = buildMarkdownDocument(
       {
         title: 'A test article',
-        canonicalUrl: 'https://example.substack.com/p/test-article'
+        canonicalUrl: 'https://example.substack.com/p/test-article',
+        description: 'A summary'
       },
       'Body text',
       {
-        paywalled: true
+        paywalled: true,
+        wordCount: 2,
+        extractedAt: '2026-04-28T13:00:00.000Z'
       }
     );
 
     expect(markdown).toContain('---');
     expect(markdown).toContain('# A test article');
     expect(markdown).toContain('Body text');
+    expect(markdown).toContain('description: "A summary"');
+    expect(markdown).toContain('extracted_at: "2026-04-28T13:00:00.000Z"');
+    expect(markdown).toContain('word_count: 2');
     expect(markdown).toContain('paywalled: true');
+  });
+
+  it('omits paywalled for free posts while keeping new frontmatter fields', () => {
+    const frontMatter = buildFrontMatter({
+      title: 'Quoted "title"',
+      canonicalUrl: 'https://example.substack.com/p/test-article',
+      description: 'A summary\nwith breaks'
+    }, {
+      extractedAt: '2026-04-28T14:00:00.000Z',
+      wordCount: 42
+    });
+
+    expect(frontMatter).toContain('title: "Quoted \\"title\\""');
+    expect(frontMatter).toContain('description: "A summary with breaks"');
+    expect(frontMatter).toContain('tags: [substack, clipped]');
+    expect(frontMatter).toContain('word_count: 42');
+    expect(frontMatter).not.toContain('paywalled: true');
   });
 
   it('recognizes a custom-domain Substack article', () => {
@@ -112,6 +143,7 @@ describe('markdown helpers', () => {
         <head>
           <title>Field Notes</title>
           <meta property="og:type" content="article" />
+          <meta property="og:description" content="A generic description for this article." />
           <link rel="canonical" href="https://writer.example.com/field-notes" />
         </head>
         <body>
@@ -129,6 +161,9 @@ describe('markdown helpers', () => {
       expect(result.status).toBe('success');
       if (result.status === 'success') {
         expect(result.payload.markdown).toContain('# Field Notes');
+        expect(result.payload.markdown).toContain('description: "A generic description for this article."');
+        expect(result.payload.markdown).toContain('tags: [substack, clipped]');
+        expect(result.payload.markdown).toContain(`word_count: ${result.payload.wordCount}`);
         expect(result.payload.warnings).toContain('This page did not match known Substack markers, so the markdown should be reviewed before use.');
         expect(result.payload.paywalled).toBe(false);
       }
@@ -164,7 +199,11 @@ describe('markdown helpers', () => {
         expect(result.payload.paywalled).toBe(true);
         expect(result.payload.paywallReason).toBe('paywall-node');
         expect(result.payload.filename).toBe('preview-field-notes.md');
+        expect(result.payload.metadata.description).toBe(
+          'A much longer essay that should only be partially available without a subscription and continues for several paragraphs beyond the preview.'
+        );
         expect(result.payload.markdown).toContain('paywalled: true');
+        expect(result.payload.markdown).toContain('description: "A much longer essay that should only be partially available without a subscription and continues for several paragraphs beyond the preview."');
         expect(result.payload.warnings).toContain(
           'The extracted markdown is only a preview because this Substack post appears to be subscriber-only.'
         );

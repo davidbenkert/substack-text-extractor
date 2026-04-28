@@ -5,6 +5,7 @@ export interface ArticleMetadata {
   publishedAt?: string;
   canonicalUrl: string;
   coverImage?: string;
+  description?: string;
 }
 
 export interface PaywallStatus {

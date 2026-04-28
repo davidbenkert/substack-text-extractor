@@ -5,6 +5,8 @@ import type { ArticleMetadata } from './types';
 
 interface MarkdownDocumentOptions {
   paywalled?: boolean;
+  wordCount?: number;
+  extractedAt?: string;
 }
 
 const turndown = new TurndownService({
@@ -31,7 +33,9 @@ turndown.addRule('figureImages', {
   }
 });
 
-const escapeYaml = (value: string) => value.replace(/"/g, '\\"');
+const sanitizeYamlText = (value: string) => value.replace(/\s+/g, ' ').trim();
+
+const escapeYaml = (value: string) => sanitizeYamlText(value).replace(/"/g, '\\"');
 
 export const buildFrontMatter = (metadata: ArticleMetadata, options: MarkdownDocumentOptions = {}) => {
   const rows = [
@@ -51,8 +55,22 @@ export const buildFrontMatter = (metadata: ArticleMetadata, options: MarkdownDoc
     rows.push(`published_at: "${metadata.publishedAt}"`);
   }
 
+  if (metadata.description) {
+    rows.push(`description: "${escapeYaml(metadata.description)}"`);
+  }
+
   if (metadata.coverImage) {
     rows.push(`cover_image: "${metadata.coverImage}"`);
+  }
+
+  rows.push('tags: [substack, clipped]');
+
+  if (options.extractedAt) {
+    rows.push(`extracted_at: "${options.extractedAt}"`);
+  }
+
+  if (typeof options.wordCount === 'number') {
+    rows.push(`word_count: ${options.wordCount}`);
   }
 
   if (options.paywalled) {
@@ -69,6 +87,9 @@ export const buildMarkdownDocument = (
   bodyMarkdown: string,
   options: MarkdownDocumentOptions = {}
 ) => {
-  const frontMatter = buildFrontMatter(metadata, options);
+  const frontMatter = buildFrontMatter(metadata, {
+    ...options,
+    extractedAt: options.extractedAt ?? new Date().toISOString()
+  });
   return `${frontMatter}\n\n# ${metadata.title}\n\n${bodyMarkdown.trim()}\n`;
 };
