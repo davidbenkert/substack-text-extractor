@@ -14,6 +14,7 @@ Permissions requested:
 | `activeTab` | Read the current tab's URL and inject the extractor |
 | `scripting` | Inject the extraction script into the active tab |
 | `storage` | Store the keyboard shortcut auto-extract flag and remember the Obsidian vault name between sessions |
+| `contextMenus` | Register a right-click menu entry for extracting Substack articles |
 
 No network requests are made by this extension.
 
@@ -26,6 +27,7 @@ No network requests are made by this extension.
 - Copy to clipboard or download as a `.md` file
 - Save directly to Obsidian via the `obsidian://new` URI scheme, with clipboard fallback for long articles
 - Keyboard shortcut: `Alt+Shift+M` on Windows/Linux and `Option+Shift+M` on macOS
+- Context-menu entry on Substack pages for one-click extraction from right-click
 - Word count + confidence score shown in the popup
 - Detects paywalled posts, surfaces a banner in the popup, and prefixes downloads with `preview-`
 
@@ -65,6 +67,11 @@ Shortcut:
 - Press `Alt+Shift+M` on Windows/Linux or `Option+Shift+M` on macOS to open the popup and start extraction immediately.
 - `Ctrl+Shift+M` is intentionally avoided because it is reserved by Chrome and Edge for the profile switcher.
 - You can reassign the shortcut in `chrome://extensions/shortcuts` or `edge://extensions/shortcuts`.
+
+Context menu:
+
+- Right-click on a `*.substack.com` page and choose `Extract Substack article to Markdown`.
+- The popup opens and runs extraction automatically using the same flow as the keyboard shortcut.
 
 ## Development
 

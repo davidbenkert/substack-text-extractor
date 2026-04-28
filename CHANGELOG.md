@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added a Substack-only context-menu entry in the background service worker so right-click extraction uses the same auto-open popup flow (#13)
 - Added direct Obsidian saving via the `obsidian://new` URI scheme, including clipboard fallback for long articles and persisted vault name support (#12)
 - Added a keyboard shortcut (`Alt+Shift+M` / `Option+Shift+M`) backed by a service worker and session storage flag to open the popup and auto-run extraction (#11)
 - Added a top-level privacy policy, popup privacy link, and README privacy references to document permissions and network behavior (#10)

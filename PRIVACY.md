@@ -17,6 +17,7 @@ The permissions below must stay in sync with [manifest.json](manifest.json).
 | `activeTab` | Read the currently active page after you click the extension action and run an extraction. |
 | `scripting` | Inject the extraction script into the current tab so the article can be converted to Markdown locally. |
 | `storage` | Store the keyboard shortcut auto-extract flag and your Obsidian vault name locally in the browser. |
+| `contextMenus` | Register the right-click entry that appears on Substack pages and triggers extraction through the existing popup flow. |
 
 ## Network Calls
 
