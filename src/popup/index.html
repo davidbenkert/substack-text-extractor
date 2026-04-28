@@ -1,0 +1,36 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Substack Text Extractor</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="panel">
+      <p class="eyebrow">Substack Markdown Extractor</p>
+      <h1 id="title">Ready to extract</h1>
+      <p id="status" class="status">Open a Substack article, then click extract.</p>
+      <div class="actions">
+        <button id="extract" class="primary">Extract Article</button>
+        <button id="copy" disabled>Copy Markdown</button>
+        <button id="download" disabled>Download .md</button>
+      </div>
+      <dl class="metrics">
+        <div>
+          <dt>Words</dt>
+          <dd id="wordCount">0</dd>
+        </div>
+        <div>
+          <dt>Confidence</dt>
+          <dd id="confidence">0%</dd>
+        </div>
+      </dl>
+      <section>
+        <h2>Preview</h2>
+        <pre id="preview" class="preview">No markdown extracted yet.</pre>
+      </section>
+      <ul id="warnings" class="warnings"></ul>
+    </main>
+    <script src="popup.js"></script>
+  </body>
+</html>

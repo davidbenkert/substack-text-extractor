@@ -1,0 +1,35 @@
+{
+  "name": "substack-text-extractor",
+  "version": "0.1.0",
+  "description": "Chrome/Edge extension that extracts the current Substack article to Markdown, entirely in your browser.",
+  "keywords": ["chrome-extension", "edge-extension", "substack", "markdown", "article-extractor"],
+  "license": "MIT",
+  "author": "David Benkert",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/davidbenkert/substack-text-extractor.git"
+  },
+  "bugs": "https://github.com/davidbenkert/substack-text-extractor/issues",
+  "homepage": "https://github.com/davidbenkert/substack-text-extractor#readme",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "prebuild": "npm run clean",
+    "build": "node build.mjs",
+    "clean": "node -e \"import('node:fs/promises').then(fs => fs.rm('dist', { recursive: true, force: true }))\"",
+    "test": "vitest run",
+    "audit": "npm audit --omit=dev"
+  },
+  "dependencies": {
+    "@mozilla/readability": "^0.6.0",
+    "turndown": "^7.2.0",
+    "turndown-plugin-gfm": "^1.0.2"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.1.24",
+    "esbuild": "^0.25.4",
+    "jsdom": "^26.1.0",
+    "typescript": "^5.8.3",
+    "vitest": "^3.1.3"
+  }
+}
